@@ -78,7 +78,7 @@ class OpticalFlowCalculator:
         self.prev_gray = gray
 
         if self.window_name:
-            #cv2.imshow(self.window_name, frame2)
+            cv2.imshow(self.window_name, frame2)
             if cv2.waitKey(1) & 0x000000FF== 27: # ESC
                 return None
         
@@ -89,7 +89,7 @@ if __name__=="__main__":
     ''' Takes in path as an cmdline argument, must end with a slash'''
 
     videos=glob.glob(sys.argv[1]+"*.avi")
-    for video in videos[:10]:
+    for video in videos:
 	    cap = cv2.VideoCapture(video)
 
 	    width    = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
