@@ -13,9 +13,9 @@ nb_epoch = 200
 data_augmentation = False
 
 # input image dimensions
-img_rows, img_cols = 28, 28
+img_rows, img_cols = 32, 32
 # the images are grayscale
-img_channels = 1
+#img_channels = 3
 
 nb_classes = img_rows*img_cols*2 
 
@@ -23,7 +23,12 @@ nb_classes = img_rows*img_cols*2
 
 model = Sequential()
 
-#print X_train.shape[i1:]
+print X_train.shape, y_train.shape
+print X_train[0].shape, y_train[0].shape
+
+print X_test.shape, y_test.shape
+print X_test[0].shape, y_test[0].shape
+print type(X_train), type(y_train)
 
 model.add(Convolution2D(32, 3, 3, border_mode='same',input_shape=X_train[0].shape))
 model.add(Activation('relu'))
@@ -48,7 +53,7 @@ model.add(Activation('tanh'))
 
 # let's train the model using SGD + momentum (how original).
 sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='mean_squared_error',
+model.compile(loss='categorical_crossentropy',
               optimizer=sgd,
               metrics=['accuracy'])
 

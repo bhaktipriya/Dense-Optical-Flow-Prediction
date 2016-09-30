@@ -52,12 +52,12 @@ class OpticalFlowCalculator:
 
             flow = cv2.calcOpticalFlowFarneback(self.prev_gray, gray, pyr_scale=0.5, levels=5, winsize=13, iterations=10, poly_n=5, poly_sigma=1.1, flags=0) 
 	    #resize and dump frame data
-	    gray_rsz=cv2.resize(self.prev_gray,(28,28))
+	    gray_rsz=cv2.resize(gray,(32,32))
 	    pickle.dump(gray_rsz,fr)
 
 	    #resize and dump flow data
-	    flow_rsz=cv2.resize(flow,(28,28))
-	    pickle.dump(flow_rsz.reshape((1,flow_rsz.shape[0]*flow_rsz.shape[1]*2)),fl)
+	    flow_rsz=cv2.resize(flow,(32,32))
+	    pickle.dump(flow_rsz.flatten(),fl)
 	    
 	    for y in range(0, flow.shape[0], self.move_step):
 		flowrow=[]
