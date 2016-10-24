@@ -42,15 +42,15 @@ class OpticalFlowCalculator:
           timestep - time step in seconds for returning flow in meters per second
         '''
 	frame2 = cv2.resize(frame, self.size)
-        gray = cv2.cvtColor(frame2, cv2.cv.CV_BGR2GRAY)
+        gray = cv2.cvtColor(frame2, cv2.COLOR_RGB2GRAY)
 
         xsum, ysum = 0,0
 
         xvel, yvel = 0,0
         
         if self.prev_gray != None:
-
-            flow = cv2.calcOpticalFlowFarneback(self.prev_gray, gray, pyr_scale=0.5, levels=5, winsize=13, iterations=10, poly_n=5, poly_sigma=1.1, flags=0) 
+	    flow=0	
+            flow = cv2.calcOpticalFlowFarneback(self.prev_gray, gray, flow, pyr_scale=0.5, levels=5, winsize=13, iterations=10, poly_n=5, poly_sigma=1.1, flags=0) 
 	    #resize and dump frame data
 	    gray_rsz=cv2.resize(gray,(32,32))
 	    pickle.dump(gray_rsz,fr)
@@ -92,8 +92,8 @@ if __name__=="__main__":
     for video in videos:
 	    cap = cv2.VideoCapture(video)
 
-	    width    = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
-	    height   = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+	    width    = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+	    height   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 	    scaledown = 1
 
