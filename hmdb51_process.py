@@ -6,7 +6,8 @@ import optparse
 import pickle
 import glob
 import sys
-
+import kkmeans
+km =0
 fr=open('frames.data','wb')
 fl=open('flow.data','wb')
 
@@ -30,35 +31,53 @@ class OpticalFlowCalculator:
         self.move_step = move_step
         self.mv_color_bgr = (flow_color_rgb[2], flow_color_rgb[1], flow_color_rgb[0])
         self.window_name = window_name
-        self.size = (int(frame_width/scaledown), int(frame_height/scaledown))
-        self.prev_gray = None
-        self.prev_time = None
+        self.size = (180,120)
 
-    def processFrame(self, frame, frameno=0, timestep=1):
+    def processFrame(self, frame1, frame2):
         '''
         Processes one image frame, returning summed X,Y flow and frame.
 
         Optional inputs are:
           timestep - time step in seconds for returning flow in meters per second
         '''
-	frame2 = cv2.resize(frame, self.size)
-        gray = cv2.cvtColor(frame2, cv2.COLOR_RGB2GRAY)
+	frame1 = cv2.resize(frame1, self.size)
+	gray1 = cv2.cvtColor(frame1, cv2.COLOR_RGB2GRAY)
+	frame2 = cv2.resize(frame2, self.size)
+        gray2 = cv2.cvtColor(frame2, cv2.COLOR_RGB2GRAY)
+
 
         xsum, ysum = 0,0
 
         xvel, yvel = 0,0
         
-        if self.prev_gray != None:
+        if True:
 	    flow=0	
-            flow = cv2.calcOpticalFlowFarneback(self.prev_gray, gray, flow, pyr_scale=0.5, levels=5, winsize=13, iterations=10, poly_n=5, poly_sigma=1.1, flags=0) 
+            flow = cv2.calcOpticalFlowFarneback(gray1, gray2, flow, pyr_scale=0.5, levels=5, winsize=13, iterations=10, poly_n=5, poly_sigma=1.1, flags=0) 
 	    #resize and dump frame data
-	    gray_rsz=cv2.resize(gray,(32,32))
+	    gray_rsz=cv2.resize(gray1,(180,120))
 	    pickle.dump(gray_rsz,fr)
 
 	    #resize and dump flow data
-	    flow_rsz=cv2.resize(flow,(32,32))
-	    pickle.dump(flow_rsz.flatten(),fl)
-	    
+	    flow_rsz=cv2.resize(flow,(48,48))
+	    P=[]
+	    for x in range(0,flow_rsz.shape[0]):
+		    for y in range(0,flow_rsz.shape[1]):
+			    dx, dy = flow[x,y]
+			    label = km.predict(np.array([dx,dy]).reshape(1,2))
+			    print label
+			    hothead = list()
+			    for i in range(0,label-1):
+				    hothead.append(0)
+		            hothead.append(1)
+		      	    for i in range(label+1,40):
+				    hothead.append(0)
+			    P.append(hothead)
+				    
+	    P = np.array(P)
+	    pickle.dump(P,fl)
+		
+
+
 	    for y in range(0, flow.shape[0], self.move_step):
 		flowrow=[]
                 for x in range(0, flow.shape[1], self.move_step):
@@ -68,27 +87,18 @@ class OpticalFlowCalculator:
 		    cv2.line(frame2, (x,y), (int(x+fx),int(y+fy)), self.mv_color_bgr)
                     cv2.circle(frame2, (x,y), 1, self.mv_color_bgr, -1)
 	
-
-            # Default to system time if no timestep
-            curr_time = time.time()
-            if not timestep:
-                timestep = (curr_time - self.prev_time) if self.prev_time else 1
-            self.prev_time = curr_time
-
-        self.prev_gray = gray
-
         if self.window_name:
             cv2.imshow(self.window_name, frame2)
             if cv2.waitKey(1) & 0x000000FF== 27: # ESC
                 return None
         
-        return  frame2
 
 if __name__=="__main__":
 	
     ''' Takes in path as an cmdline argument, must end with a slash'''
 
     videos=glob.glob(sys.argv[1]+"*.avi")
+    km=kkmeans.computeMeans(sys.argv[1])
     for video in videos:
 	    cap = cv2.VideoCapture(video)
 
@@ -104,18 +114,21 @@ if __name__=="__main__":
 	    start_sec = time.time()
 	    count = 0
 	    while True:
+		for i in range(0,14):
+			count += 1
+			success1, frame1 = cap.read()
+			f1 = count
+		count +=1
+		f2 = count
+		success2, frame2 = cap.read()
 
-		success, frame = cap.read()
-
-		count += 1
-		    
-		if not success:
+		 
+		if not success1 or not success2:
 		    break
+		print f1 , f2
 
-		result = flow.processFrame(frame,count)
+		result = flow.processFrame(frame1,frame2)
 
-		if result==None:
-		    break
 
 	    elapsed_sec = time.time() - start_sec
 
