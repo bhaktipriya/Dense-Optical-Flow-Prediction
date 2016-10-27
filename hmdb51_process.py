@@ -64,20 +64,14 @@ class OpticalFlowCalculator:
 		    for y in range(0,flow_rsz.shape[1]):
 			    dx, dy = flow[x,y]
 			    label = km.predict(np.array([dx,dy]).reshape(1,2))
-			    print label
-			    hothead = list()
-			    for i in range(0,label-1):
-				    hothead.append(0)
-		            hothead.append(1)
-		      	    for i in range(label+1,40):
-				    hothead.append(0)
+			    #print (label[0])
+			    hothead = [0]*40
+			    hothead[label[0]]
 			    P.append(hothead)
 				    
 	    P = np.array(P)
-	    pickle.dump(P,fl)
+	    pickle.dump(P.flatten(),fl)
 		
-
-
 	    for y in range(0, flow.shape[0], self.move_step):
 		flowrow=[]
                 for x in range(0, flow.shape[1], self.move_step):
