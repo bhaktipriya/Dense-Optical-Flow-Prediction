@@ -6,8 +6,8 @@ import optparse
 import pickle
 import glob
 import sys
-import kkmeans
-km =0
+import kmeans
+km = 0
 fr=open('frames.data','wb')
 fl=open('flow.data','wb')
 
@@ -64,7 +64,6 @@ class OpticalFlowCalculator:
 		    for y in range(0,flow_rsz.shape[1]):
 			    dx, dy = flow[x,y]
 			    label = km.predict(np.array([dx,dy]).reshape(1,2))
-			    print label
 			    hothead = list()
 			    for i in range(0,label-1):
 				    hothead.append(0)
@@ -98,7 +97,7 @@ if __name__=="__main__":
     ''' Takes in path as an cmdline argument, must end with a slash'''
 
     videos=glob.glob(sys.argv[1]+"*.avi")
-    km=kkmeans.computeMeans(sys.argv[1])
+    km=kmeans.run_kmeans(sys.argv[1])
     for video in videos:
 	    cap = cv2.VideoCapture(video)
 
@@ -125,7 +124,6 @@ if __name__=="__main__":
 		 
 		if not success1 or not success2:
 		    break
-		print f1 , f2
 
 		result = flow.processFrame(frame1,frame2)
 

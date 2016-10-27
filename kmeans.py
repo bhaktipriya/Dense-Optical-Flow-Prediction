@@ -66,11 +66,11 @@ def pickRandomVideos(datasetDir):
 	k = random.sample(l,num_to_select)
 	return k
 
-
+# path must end with /
 def run_kmeans(path_to_videos):
 	videos = pickRandomVideos(path_to_videos)
 	for video in videos:
-		pickRandomFramesFromVideo(path_to_videos+"/" + video)
+		pickRandomFramesFromVideo(path_to_videos+ video)
 	X = np.array(flows)
 	km = computeMeans(X)
 	return km 
