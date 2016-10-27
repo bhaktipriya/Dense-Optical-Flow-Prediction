@@ -31,7 +31,7 @@ class OpticalFlowCalculator:
         self.move_step = move_step
         self.mv_color_bgr = (flow_color_rgb[2], flow_color_rgb[1], flow_color_rgb[0])
         self.window_name = window_name
-        self.size = (180,120)
+        self.size = (200,200)
 
     def processFrame(self, frame1, frame2):
         '''
@@ -54,7 +54,8 @@ class OpticalFlowCalculator:
 	    flow=0	
             flow = cv2.calcOpticalFlowFarneback(gray1, gray2, flow, pyr_scale=0.5, levels=5, winsize=13, iterations=10, poly_n=5, poly_sigma=1.1, flags=0) 
 	    #resize and dump frame data
-	    col_rsz=cv2.resize(frame1,(180,120))
+	    col_rsz=cv2.resize(frame1,self.size)
+	    col_rsz=col_rsz.reshape(3,200,200)
 	    pickle.dump(col_rsz,fr)
 
 	    #resize and dump flow data
@@ -70,7 +71,8 @@ class OpticalFlowCalculator:
 			    P.append(hothead)
 				    
 	    P = np.array(P)
-	    pickle.dump(P.flatten(),fl)
+	    #pickle.dump(P.flatten(),fl)
+	    pickle.dump(P,fl)
 		
 	    for y in range(0, flow.shape[0], self.move_step):
 		flowrow=[]
